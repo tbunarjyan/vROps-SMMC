@@ -1,0 +1,128 @@
+{
+   "vC-Ops-Admin-UI": {
+        "CommittedMemory": "Committed memory",
+	    "CPUUsage": "CPU usage",
+        "Threads": "Threads"
+    },
+
+    "vC-Ops-Analytics": {
+        "CPUUsage": "CPU usage",
+        "CommittedMemory": "Committed memory",
+        "CurrentHeapSize": "Current heap size",
+        "PrimaryMetricsCount": "Number of primary metrics",
+        "PrimaryResourcesCount": "Number of primary Objects",
+        "Threads": "Threads",
+        "uptime": "Analytics Uptime",
+        "LocalPrimaryFDSize": "Number of primary forward data entries",
+        "ActiveAlerts" : "Active alerts",
+        "OverallThresholdChecking|NumberOfThresholdCheckerItems" : "Overall threshold checking|Number of threshold checking work items",
+        "OverallThresholdChecking|Duration|MaxDuration" : "Overall threshold checking|Duration|Maximum",
+        "OverallThresholdChecking|IncomingObservationsSize|MaxCount" : "Overall threshold checking|Incoming observations size|Maximal",
+        "DtCalculation|percentage" : "DT Calculation|Progress"
+    },
+       "vC-Ops-CaSA": {
+        "CommittedMemory": "Committed memory",
+	    "CPUUsage": "CPU usage",
+        "Threads": "Threads"
+    },
+
+    "vC-Ops-Cluster": {
+        "ActiveAlerts": "Active Alerts",
+        "AnalyticsObjectCache|sumNumberOfLoadedAttributeCaches": "Child Analytics Object Cache|Total Number Of Loaded Attribute Caches",
+        "AnalyticsObjectCache|sumNumberOfRemovedAttributeCaches": "Child Analytics Object Cache|Total Number Of Removed Attribute Caches",
+        "Device|data-db|await": "Device|data-db|Average transaction time",
+        "Device|data-db|iops_read": "Device|data-db|Reads per second",
+        "Device|data-db|iops_write": "Device|data-db|Writes per second",
+        "IncomingObservationsSize": "Incoming observations size",
+        "LocalPrimaryFDSize": "Number of primary forward data entries",
+        "PrimaryMetricsCount": "Number of primary metrics",
+        "PrimaryResourcesCount": "Number of primary Objects",
+        "SavedMetricsCount": "Saved metrics count",
+        "UI|TotalSessionCount": "UI|Total number of active sessions",
+        "dt|percentage": "DT|Progress",
+        "metricRegions|StringValuesCacheSize": "Metric Regions|String Metric Values Cache Size",
+        "numberOfMetricKeysInDB": "Number of MetricKeys in DB",
+        "primaryPropertyCacheMetrics|stringCount": "Property Cache Metrics|String Property Count"
+    },
+    "vC-Ops-Collector": {
+        "CPUUsage": "CPU usage",
+        "CollectorLoad|CollectingAdapters": "Collector Load|Collecting Adapters",
+        "CollectorLoad|CollectingMetrics": "Collector Load|Collecting Metrics",
+        "CollectorLoad|CollectingResources": "Collector Load|Collecting Objects",
+        "CollectorLoad|MetricKeyCount": "Collector Load|Metric Key Count",
+        "CollectorLoad|StartedAdapters": "Collector Load|Started Adapters",
+        "CollectorLoad|StartedResources": "Collector Load|Started Objects",
+        "CollectorLoad|UniqueStringValueCount": "Collector Load|Unique String Value Count",
+        "CommittedMemory": "Committed memory",
+        "CurrentHeapSize": "Current heap size",
+        "ForwardDataQueueSize": "Data Forwarder Queue Size",
+        "Threads": "Threads",
+        "uptime": "Collector Uptime"
+    },
+    "vC-Ops-Node": {
+        "cpu|allCpuCombined_percent": "CPU|CPU usage",
+        "mem|actualUsed": "Memory|Actual Used",
+	    "mem|total": "Memory|Total",
+        "swap|used": "Swap|Used",
+        "Swap|Used": "Swap|Used",
+        "disk|fileSystem:/storage/core|used": "Disk|File System:/storage/core|Used",
+        "disk|fileSystem:/storage/core|total": "Disk|File System:/storage/core|Total",
+        "disk|fileSystem:/storage/db|used":"Disk|File System:/storage/db|Used",
+        "disk|fileSystem:/storage/db|total": "Disk|File System:/storage/db|Total",
+        "disk|fileSystem:/storage/log|used": "Disk|File System:/storage/log|Used",
+        "disk|fileSystem:/storage/log|total": "Disk|File System:/storage/log|Total",
+        "net|tcpSynSent": "TCP state SYN_SENT",
+        "net|tcpSynRecv": "TCP state SYN RCVD"
+
+
+    },
+    "vC-Ops-Fsdb": {
+	    "FsdbState": "Fsdb state"
+
+    },
+    "vC-Ops-Persistence": {
+        "AlarmSQL|AlarmTableSize": "Alarm DB|Alarm Table Size",
+	    "AlarmSQL|Size" : "Alarm DB|Size",
+        "AlarmSQL|AlertTableSize": "Alarm DB|Alert Table Size",
+        "AlarmSQL|PostgreSQLMemoryUsageData": "Alarm DB|Memory Usage",
+        "CassandraDB|CommittedMemory": "Cassandra DB|Committed memory",
+        "CassandraDB|ThreadCount": "Cassandra DB|Threads",
+        "CassandraDB|pidstat|cpu_user": "Cassandra DB|pidstat output|Percentage of CPU used by the task while executing at the user level (application), with or without nice priority",
+        "ControllerSQL|PostgreSQLMemoryUsageRepl": "Controller DB|Memory Usage",
+        "HDS|HdsDaoTables:hd_property_instance|TableSize": "Historical Data Service|Historical Data Service DB Tables:hd_property_instance|Table size",
+        "HDS|HdsDaoTables:hd_property|TableSize": "Historical Data Service|Historical Data Service DB Tables:hd_property|Table size",
+        "HDS|HdsDaoTables:hd_resource_property_history|TableSize": "Historical Data Service|Historical Data Service DB Tables:hd_resource_property_history|Table size",
+        "HDS|HdsDaoTables:hd_resource_relationship_history|TableSize": "Historical Data Service|Historical Data Service DB Tables:hd_resource_relationship_history|Table size",
+        "HDS|HdsDaoTables:hd_resource|TableSize": "Historical Data Service|Historical Data Service DB Tables:hd_resource|Table size",
+	    "ControllerSQL|Size": "Controller DB|Size",
+	    "CassandraDB|CurrentHeapSize" : "Cassandra DB|Current heap size"
+    },
+
+   "vC-Ops-Product-UI": {
+        "CommittedMemory": "Committed memory",
+	    "CPUUsage": "CPU usage",
+        "Threads": "Threads"
+    },
+    "vC-Ops-Suite-API": {
+        "CommittedMemory": "Committed memory",
+	    "CPUUsage": "CPU usage",
+        "Threads": "Threads"
+    },
+
+    "vCenter Operations Adapter Instance": {
+        "Instance Attributes|elapsed_collect_time": "Instance Generated|Elapsed collect time",
+        "Instance Attributes|new_metrics": "Instance Generated|New metrics in each collect call",
+        "Instance Attributes|down_resources": "Instance Generated|Number of down objects",
+        "Instance Attributes|reropted_events": "Number of Events",
+        "Instance Attributes|collected_metrics": "Number of metrics collected",
+        "Instance Attributes|monitoring_resources": "Number of Monitoring Resources",
+        "Instance Attributes|new_properties": "Number of New Properties",
+        "Instance Attributes|collected_resources": "Number of objects collected",
+        "Instance Attributes|not_existing_resource_count": "Number of Objects Reported Not Existing by AI",
+        "Instance Attributes|observations": "Number of Observations",
+        "Instance Attributes|property_updates": "Number of Property Updates",
+        "Instance Attributes|property_value_changes": "Number of Property Value Changes",
+        "Instance Attributes|relationship_updates": "Number of Relationship Updates"
+    }
+
+}
