@@ -123,6 +123,8 @@
         "Instance Attributes|property_updates": "Number of Property Updates",
         "Instance Attributes|property_value_changes": "Number of Property Value Changes",
         "Instance Attributes|relationship_updates": "Number of Relationship Updates"
-    }
+    },
+    "vC-Ops-Watchdog": {},
 
+    "vC-Ops-Controller": {}
 }

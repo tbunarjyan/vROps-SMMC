@@ -3,6 +3,7 @@
 import json
 import logging
 from urllib.error import HTTPError
+import re
 import pandas as pd
 import requests
 import urllib3
@@ -179,6 +180,8 @@ def metric_collector(request_cred):
     """Collect and store self-monitoring object metrics via suite REST API."""
     metric_df_obj, metric_name_def = {}, {}
 
+    local_start_index = 0
+
     for service_name in request_cred.service_payloads:
         setup_service_info = get_object_id(request_cred, service_name)
 
@@ -192,17 +195,23 @@ def metric_collector(request_cred):
             node_name = setup_service_info['resourceList'][i][
                 'resourceKey']['resourceIdentifiers'][0]['value']
 
-            metric_name_def[node_name], metric_df_obj[node_name] = [], {}
+            node_name = re.sub('[^.,A-Za-z0-9]+', '', node_name)
 
-            logging.info("%s/%s %s",
-                         i + 1, num_service_instance, obj_uuid_name)
+            if node_name.strip() == "":
+                node_name = 'UNDEF'
+
+            if node_name not in metric_name_def.keys():
+                metric_name_def[node_name], metric_df_obj[node_name] = [], {}
+
+            logging.info("%s/%s %s, NODE NAME: %s", i + 1,
+                         num_service_instance, obj_uuid_name, node_name)
 
             requested_metric = get_metric_list(
                 request_cred, obj_uuid)['values'][0]['stat-list']['stat']
 
             for j, metric in enumerate(requested_metric):
                 given_metric_name = metric['statKey']['key']
-                given_metric_short_name = 'm%s' % j
+                given_metric_short_name = 'm%s' % int(j + local_start_index)
                 is_kpi = ''
 
                 if given_metric_name in \
@@ -216,4 +225,5 @@ def metric_collector(request_cred):
                 metric_df_obj[node_name][given_metric_short_name] = \
                     pd.Series(requested_metric[j]['data'])
 
+            local_start_index += len(requested_metric)
     return metric_df_obj, metric_name_def

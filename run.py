@@ -7,6 +7,7 @@ __author__ = 'VMware, Inc.'
 import logging
 import argparse
 import time
+import os
 from metric_collector import acquire_bearer_token, release_bearer_token, \
     json_decode, setup_status, metric_collector, save_as_csv, RequestCred
 
@@ -17,28 +18,33 @@ def run():
     logging.basicConfig(format='%(asctime)s [%(levelname)s] - %(message)s',
                         level=logging.INFO)
 
-    (credentials, object_list) = arg_parser()
+    (credentials, object_list, report_directory) = arg_parser()
     logging.info('Parsed command line arguments successfully.')
 
     try:
         request_cred = json_decode(credentials)
         object_list = json_decode(object_list)
 
+        request_cred = RequestCred(request_cred)
+        request_cred.service_payloads = object_list
+
+        if not os.path.exists(report_directory):
+            os.makedirs(report_directory)
+
     except Exception as exception_caught:
         logging.error('%s, Unable to load resources.',
                       type(exception_caught).__name__)
         return run_status
 
-    request_cred = RequestCred(request_cred)
-    request_cred.service_payloads = object_list
-
     bearer_token = acquire_bearer_token(request_cred)
     if bearer_token['httpStatusCode'] != 200:
-        logging.error("%s, %s",
-                      bearer_token['httpStatusCode'], bearer_token["message"])
+        logging.error(
+            "%s, %s", bearer_token['httpStatusCode'], bearer_token["message"])
         return run_status
+
     request_cred.bearer_token = bearer_token['token']
-    # auth_token = str(auth_token['token'])
+    logging.info(
+        "Retrieved bearer token: HTTP %s", bearer_token['httpStatusCode'])
 
     cluster_state = setup_status(request_cred)
     if cluster_state['httpStatusCode'] != 200:
@@ -58,17 +64,15 @@ def run():
     data, names = metric_collector(request_cred)
 
     for node_name, _ in data.items():
-        metric_filename = '%s_metrics.csv' % node_name
+        metric_filename = '%s/%s_metrics.csv' % (
+            report_directory, node_name)
         metric_saved_status = save_as_csv(
             metric_filename, data[node_name], "metrics")
 
-        # print('data_len=', len(data[node_name]))
-
-        names_filename = '%s_metric_names.csv' % node_name
+        names_filename = '%s/%s_metric_names.csv' % (
+            report_directory, node_name)
         names_saved_status = save_as_csv(
             names_filename, names[node_name], "names")
-
-        # print('name_len=', len(names[node_name]))
 
         if metric_saved_status and names_saved_status:
             logging.info("Saved %s metric data, SUCCESS", node_name)
@@ -80,7 +84,9 @@ def run():
     released_token = release_bearer_token(request_cred)
 
     if released_token != 200:
-        logging.error("Error while releasing token: %s", released_token)
+        logging.error("Error while releasing token: HTTP %s", released_token)
+    else:
+        logging.info("Released bearer token: HTTP %s", released_token)
 
     run_status = "SUCCESS"
     logging.info("Metric Collection status: %s", run_status)
@@ -95,9 +101,12 @@ def arg_parser():
                         help='vR Ops credentials file path')
     parser.add_argument('-OBJ-LIST', '--object_list', type=str,
                         help='vR Ops self-monitoring object list')
+    parser.add_argument('-REP-DIR', '--report_directory', type=str,
+                        help='Directory path in which reports would be saved')
     arg_list = parser.parse_args()
 
-    return arg_list.credentials, arg_list.object_list
+    return (arg_list.credentials, arg_list.object_list,
+            arg_list.report_directory)
 
 
 if __name__ == '__main__':
