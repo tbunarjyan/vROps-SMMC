@@ -16,7 +16,7 @@ custom metric collector of self-monitoring objects using vR Ops REST API.
 #### How to run
 vR Ops SMMC is a command line tool.
 
-It takes 4 command line arguments: 
+It takes 3 command line arguments: 
 1. `-CRED <request_cred_filepath>` vR Ops credentials file path
 2. `-OBJ-LIST <object_list_filepath>` vR Ops self-monitoring object list file path
 3. `-REP-DIR <report_directory_path>` Directory path in which reports would be saved
