@@ -1,13 +1,13 @@
 {
     "auth": [
-        "admin",
-        "Admin@123"
+        "",
+        ""
     ],
     "payloads": {
         "begin": "",
         "end": "17/01/2020, 20:41"
     },
-    "vrops_ip": "10.143.120.239"
+    "vrops_ip": ""
 }
 
 	
