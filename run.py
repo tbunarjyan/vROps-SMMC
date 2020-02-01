@@ -8,8 +8,10 @@ import logging
 import argparse
 import time
 import os
-from metric_collector import acquire_bearer_token, release_bearer_token, \
-    json_decode, setup_status, metric_collector, save_as_csv, RequestCred
+from metric_collector import json_decode, metric_collector, \
+    save_as_csv, RequestCred
+from requests_definitions import acquire_bearer_token, \
+    release_bearer_token, setup_status
 
 
 def run():
@@ -28,6 +30,8 @@ def run():
         request_cred = RequestCred(request_cred)
         request_cred.service_payloads = object_list
 
+        report_directory = f"{report_directory}_{request_cred.ip_addr}"
+
         if not os.path.exists(report_directory):
             os.makedirs(report_directory)
 
@@ -42,7 +46,7 @@ def run():
             "%s, %s", bearer_token['httpStatusCode'], bearer_token["message"])
         return run_status
 
-    request_cred.bearer_token = bearer_token['token']
+    request_cred.bearer_token = bearer_token['data']['token']
     logging.info(
         "Retrieved bearer token: HTTP %s", bearer_token['httpStatusCode'])
 
@@ -61,7 +65,14 @@ def run():
     logging.info("vR Ops Cluster Status: %s", cluster_status)
     logging.info("Starting to collect self-monitoring object metrics.")
 
-    data, names = metric_collector(request_cred)
+    output_data = metric_collector(request_cred)
+
+    if output_data['status_code'] != 200:
+        logging.error("%s, %s", output_data['status_code'],
+                      output_data["message"])
+        return run_status
+
+    data, names = output_data['metric_data'], output_data['metric_names']
 
     for node_name, _ in data.items():
         metric_filename = '%s/%s_metrics.csv' % (

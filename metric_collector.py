@@ -2,11 +2,10 @@
 
 import json
 import logging
-from urllib.error import HTTPError
 import re
 import pandas as pd
-import requests
-import urllib3
+
+from requests_definitions import get_object_id, get_metric_list
 
 
 class RequestCred:
@@ -44,146 +43,24 @@ def save_as_csv(filename, data, data_type):
         return False
 
 
-def acquire_bearer_token(request_cred):
-    """Generate vR Ops authorization token."""
-    urllib3.disable_warnings()
-
-    url = 'https://%s/suite-api/api/auth/token/acquire' % request_cred.ip_addr
-
-    headers = {'Accept': "application/json",
-               'Content-Type': "application/json"}
-
-    payload = """{{"username": "{0}", "password": "{1}"}}""". \
-        format(request_cred.username, request_cred.password)
-
-    try:
-        response = requests.request(
-            "POST", url, data=payload, auth=tuple(
-                (request_cred.username, request_cred.password)),
-            headers=headers, verify=False)
-
-    except HTTPError as error:
-        response = error.response
-    response = response.json()
-
-    if 'httpStatusCode' not in response.keys():
-        response['httpStatusCode'] = 200
-    return response
-
-
-def release_bearer_token(request_cred):
-    """Revoke vR Ops authorization token."""
-    urllib3.disable_warnings()
-
-    url = 'https://%s/suite-api/api/auth/token/release' % request_cred.ip_addr
-
-    headers = {'Accept': "application/json",
-               'Content-Type': "application/json",
-               'Authorization': 'vRealizeOpsToken %s' %
-                                request_cred.bearer_token}
-    try:
-        response = requests.request(
-            "POST", url, headers=headers, verify=False)
-        return response.status_code
-    except HTTPError as error:
-        response = error.response
-        response.status_code = 455
-    return response.status_code
-
-
-def get_object_id(request_cred, service_name):
-    """Get object id from a given object name using vROps suite REST API."""
-    urllib3.disable_warnings()
-
-    url = "https://%s/suite-api/api/resources/query" % request_cred.ip_addr
-
-    payload = "{\n    \"resourceKind\" : [\"" + service_name + '\"]\n}"'
-
-    headers = {'Accept': "application/json",
-               'Content-Type': "application/json",
-               'Authorization': 'vRealizeOpsToken %s' %
-                                request_cred.bearer_token}
-    try:
-        response = requests.request(
-            "POST", url, auth=tuple(
-                (request_cred.username, request_cred.password)),
-            data=payload, headers=headers, verify=False)
-
-    except HTTPError as error:
-        response = error.response
-    response = response.json()
-
-    if 'httpStatusCode' not in response.keys():
-        response['httpStatusCode'] = 200
-    return response
-
-
-def get_metric_list(request_cred, obj_uuid):
-    """Get metric data from a given self-monitoring object."""
-    urllib3.disable_warnings()
-
-    request_url = 'https://%s/suite-api/api/resources/%s/stats?' % \
-                  (request_cred.ip_addr, obj_uuid)
-
-    headers = {'Accept': "application/json",
-               'Content-Type': "application/json",
-               'Authorization': 'vRealizeOpsToken %s' %
-                                request_cred.bearer_token}
-    try:
-        response = requests.get(
-            request_url, headers=headers, params=None, auth=tuple(
-                (request_cred.username, request_cred.password)), verify=False)
-
-    except HTTPError as error:
-        response = error.response
-    response = response.json()
-
-    if 'httpStatusCode' not in response.keys():
-        response['httpStatusCode'] = 200
-    return response
-
-
-def setup_status(request_cred):
-    """Get vR Ops up status information."""
-    urllib3.disable_warnings()
-
-    request_url = 'https://%s/casa/sysadmin/cluster/online_state' % \
-                  request_cred.ip_addr
-
-    headers = {'Accept': "application/json",
-               'Content-Type': "application/json"}
-
-    try:
-        response = requests.get(
-            request_url, headers=headers, auth=tuple(
-                (request_cred.username, request_cred.password)), verify=False)
-
-    except HTTPError as error:
-        response = error.response
-
-    response_content = {}
-    try:
-        response = response.json()
-        response_content['httpStatusCode'] = 200
-        response_content['data'] = response
-        return response_content
-
-    except Exception as exception_caught:
-        response_content['httpStatusCode'] = 503
-        response_content['message'] = \
-            "vR Ops CASA is unavailable. %s", \
-            type(exception_caught).__name__
-        return response_content
-
-
 def metric_collector(request_cred):
     """Collect and store self-monitoring object metrics via suite REST API."""
     metric_df_obj, metric_name_def = {}, {}
 
     local_start_index = 0
+    output_data = {}
 
     for service_name in request_cred.service_payloads:
         setup_service_info = get_object_id(request_cred, service_name)
+
+        if setup_service_info['httpStatusCode'] != 200:
+            logging.error('%s, %s ', setup_service_info['httpStatusCode'],
+                          setup_service_info['message'])
+            output_data['status_code'] = \
+                setup_service_info['httpStatusCode']
+            output_data['message'] = \
+                setup_service_info['message']
+            return output_data
 
         num_service_instance = setup_service_info['pageInfo']['totalCount']
 
@@ -198,16 +75,33 @@ def metric_collector(request_cred):
             node_name = re.sub('[^.,A-Za-z0-9]+', '', node_name)
 
             if node_name.strip() == "":
-                node_name = 'UNDEF'
+                node_name = "UNDEFINED_NODE"
 
             if node_name not in metric_name_def.keys():
                 metric_name_def[node_name], metric_df_obj[node_name] = [], {}
 
-            logging.info("%s/%s %s, NODE NAME: %s", i + 1,
-                         num_service_instance, obj_uuid_name, node_name)
-
             requested_metric = get_metric_list(
-                request_cred, obj_uuid)['values'][0]['stat-list']['stat']
+                request_cred, obj_uuid)
+
+            if requested_metric['httpStatusCode'] != 200:
+                logging.error('%s, %s ', requested_metric['httpStatusCode'],
+                              requested_metric['message'])
+                output_data['status_code'] = \
+                    requested_metric['httpStatusCode']
+                output_data['message'] = \
+                    requested_metric['message']
+                return output_data
+
+            try:
+                requested_metric = requested_metric[
+                    'values'][0]['stat-list']['stat']
+
+            except Exception as exception_caught:
+                logging.warning(
+                    "%s/%s %s, NODE NAME: %s, -- NO DATA COLLECTED, %s",
+                    i + 1, num_service_instance, obj_uuid_name, node_name,
+                    type(exception_caught).__name__)
+                continue
 
             for j, metric in enumerate(requested_metric):
                 given_metric_name = metric['statKey']['key']
@@ -226,4 +120,12 @@ def metric_collector(request_cred):
                     pd.Series(requested_metric[j]['data'])
 
             local_start_index += len(requested_metric)
-    return metric_df_obj, metric_name_def
+
+            logging.info("%s/%s %s, NODE NAME: %s", i + 1,
+                         num_service_instance, obj_uuid_name, node_name)
+
+    output_data['metric_data'], output_data['metric_names'] = (
+        metric_df_obj, metric_name_def)
+    output_data['status_code'] = 200
+
+    return output_data

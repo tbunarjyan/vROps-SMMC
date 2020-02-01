@@ -42,7 +42,7 @@ Example of run command:
 
 ```bash
 cd <folder_name>
-python3 run.py -CRED "inputs/request_cred.json" -OBJ-LIST "inputs/object_list.json" -REP-DIR <reports>
+python3 run.py -CRED "inputs/request_cred.json" -OBJ-LIST "inputs/object_list.json" -REP-DIR "reports"
 ```
 
 ## About
