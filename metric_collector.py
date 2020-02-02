@@ -17,6 +17,11 @@ class RequestCred:
         self.username = request_cred['auth'][0].strip()
         self.password = request_cred['auth'][1].strip()
         self.payloads = request_cred['payloads']
+
+        self.payloads = request_cred['payloads']
+        self.payloads['begin'] = self.payloads['begin'].replace(" ", "")
+        self.payloads['end'] = self.payloads['end'].replace(" ", "")
+
         self.service_payloads = ''
         self.bearer_token = ''
 

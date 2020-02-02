@@ -9,7 +9,7 @@ custom metric collector of self-monitoring objects using vR Ops REST API.
 1. Loads credentials and object list `.json` data in commandline
 2. Makes REST calls to GET information about vR Ops cluster status and bearer token
 3. Makes REST calls to GET all self-monitoring object metrics including KPIs
-4. Saves output data as `.csv` file with node name mentioned as filename
+4. Saves output data as `.csv` file with node name mentioned in filename
 
 
 
@@ -23,8 +23,12 @@ It takes 3 command line arguments:
 
 #### Running info
 
-1. Clone/download the `code` of vR Ops SMMC to the folder `<folder_name>`. 
-2. Install the dependent python libraries, by the following command:
+1. Clone/download the `code` of vR Ops Health Checker into the folder `<folder_name>`. 
+
+2. Modify `inputs/request_cred.json` credentials file with your vR Ops credentials and report parameters 
+(e.g. begin: start date of reporting period, end: end date of reporting period).
+
+3. Install the dependent python libraries, by the following command:
 
 ```bash
 cd <folder_name>
@@ -45,5 +49,7 @@ cd <folder_name>
 python3 run.py -CRED "inputs/request_cred.json" -OBJ-LIST "inputs/object_list.json" -REP-DIR "reports"
 ```
 
+NOTE: You will find the generated `.csv` metric data in `reports_<master_node_ip>` repository.
+
 ## About
-vR Ops SMMC is written in python 3. [Version: `0.1`]
+vR Ops SMMC is written in python 3. [Version: `0.2`]

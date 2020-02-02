@@ -1,14 +1,11 @@
 {
     "auth": [
-        "",
-        ""
+        "username",
+        "password"
     ],
     "payloads": {
-        "begin": "",
-        "end": "17/01/2020, 20:41"
+        "begin": "%d/%m/%Y,%H:%M",
+        "end": "%d/%m/%Y,%H:%M"
     },
-    "vrops_ip": ""
+    "vrops_ip": "ip_addr/fqdn"
 }
-
-	
-
