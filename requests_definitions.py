@@ -10,8 +10,8 @@ def acquire_bearer_token(request_cred):
     """Generate vR Ops authorization token."""
     urllib3.disable_warnings()
 
-    url = 'https://%s/suite-api/api/auth/token/acquire' % \
-          request_cred.ip_addr
+    request_url = 'https://%s/suite-api/api/auth/token/acquire' % \
+                  request_cred.ip_addr
 
     headers = {'Accept': "application/json",
                'Content-Type': "application/json"}
@@ -21,7 +21,7 @@ def acquire_bearer_token(request_cred):
 
     try:
         response = requests.request(
-            "POST", url, data=payload, headers=headers, verify=False)
+            "POST", request_url, data=payload, headers=headers, verify=False)
 
     except HTTPError as error:
         response = error.response
@@ -46,8 +46,8 @@ def release_bearer_token(request_cred):
     """Revoke vR Ops authorization token."""
     urllib3.disable_warnings()
 
-    url = 'https://%s/suite-api/api/auth/token/release' % \
-          request_cred.ip_addr
+    request_url = 'https://%s/suite-api/api/auth/token/release' % \
+                  request_cred.ip_addr
 
     headers = {'Accept': "application/json",
                'Content-Type': "application/json",
@@ -55,7 +55,7 @@ def release_bearer_token(request_cred):
                                 request_cred.bearer_token}
     try:
         response = requests.request(
-            "POST", url, headers=headers, verify=False)
+            "POST", request_url, headers=headers, verify=False)
 
     except HTTPError as error:
         response = error.response
@@ -74,11 +74,16 @@ def setup_status(request_cred):
     headers = {'Accept': "application/json",
                'Content-Type': "application/json"}
 
+    general_status_message, response = None, None
+
     try:
         response = requests.get(
             request_url, headers=headers, auth=tuple(
                 (request_cred.username, request_cred.password)),
             verify=False)
+
+    except requests.exceptions.ConnectionError as error:
+        general_status_message = error.args[0].reason.__context__
 
     except HTTPError as error:
         response = error.response
@@ -92,28 +97,38 @@ def setup_status(request_cred):
 
     except Exception as exception_caught:
         response_content['httpStatusCode'] = 503
-        response_content['message'] = \
-            "vR Ops CASA is unavailable. %s", \
-            type(exception_caught).__name__
+        message = "vR Ops CASA REST API not responding properly"
+
+        if general_status_message is None:
+            response_content['message'] = \
+                f"{message} Unable to check vR Ops cluster running status. " \
+                f"Please try again later. {type(exception_caught).__name__}"
+        else:
+            response_content['message'] = \
+                f"{message}. {general_status_message}. Seems " \
+                f"HTTPSConnectionPool exception occurs. Please use " \
+                f"vR Ops next node IP/FQDN for retry."
 
     return response_content
 
 
 def get_object_id(request_cred, service_name):
-    """Get object id from a given object name using vROps suite REST API."""
+    """Get object id from a given object name using vR Ops suite REST API."""
     urllib3.disable_warnings()
 
-    url = "https://%s/suite-api/api/resources/query" % request_cred.ip_addr
-
-    payload = "{\n    \"resourceKind\" : [\"" + service_name + '\"]\n}"'
+    request_url = "https://%s/suite-api/api/resources/query" % \
+                  request_cred.ip_addr
 
     headers = {'Accept': "application/json",
                'Content-Type': "application/json",
                'Authorization': 'vRealizeOpsToken %s' %
                                 request_cred.bearer_token}
+
+    payload = "{\n    \"resourceKind\" : [\"" + service_name + '\"]\n}"'
+
     try:
         response = requests.request(
-            "POST", url, data=payload, headers=headers, verify=False)
+            "POST", request_url, data=payload, headers=headers, verify=False)
 
     except HTTPError as error:
         response = error.response
@@ -128,8 +143,8 @@ def get_object_id(request_cred, service_name):
     except Exception as exception_caught:
         response_content['httpStatusCode'] = response.status_code
         response_content['message'] = \
-            "HTTP: %s, Unable to acquire bearer token." % \
-            type(exception_caught).__name__
+            "HTTP: %s, Unable to acquire vR Ops self-monitoring " \
+            "object UUIDs." % type(exception_caught).__name__
 
     return response_content
 
@@ -145,9 +160,11 @@ def get_metric_list(request_cred, obj_uuid):
                'Content-Type': "application/json",
                'Authorization': 'vRealizeOpsToken %s' %
                                 request_cred.bearer_token}
+    payloads = request_cred.payloads
+
     try:
         response = requests.get(
-            request_url, headers=headers, params=None, verify=False)
+            request_url, headers=headers, params=payloads, verify=False)
 
     except HTTPError as error:
         response = error.response

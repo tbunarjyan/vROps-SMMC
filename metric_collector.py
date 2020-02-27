@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import pandas as pd
+from datetime import datetime
 
 from requests_definitions import get_object_id, get_metric_list
 
@@ -19,11 +20,21 @@ class RequestCred:
         self.payloads = request_cred['payloads']
 
         self.payloads = request_cred['payloads']
-        self.payloads['begin'] = self.payloads['begin'].replace(" ", "")
-        self.payloads['end'] = self.payloads['end'].replace(" ", "")
+        self.payloads['begin'] = str(get_timestamp(
+            self.payloads['begin'].replace(" ", "")))
+        self.payloads['end'] = str(get_timestamp(
+            self.payloads['end'].replace(" ", "")))
 
         self.service_payloads = ''
         self.bearer_token = ''
+
+
+def get_timestamp(date_format):
+    """Convert given date format into timestamp."""
+    date = datetime.strptime(date_format, "%d/%m/%Y,%H:%M")
+    timestamp = int(round(date.timestamp() * 1000))
+
+    return timestamp
 
 
 def json_decode(name):
